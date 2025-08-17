@@ -10,7 +10,26 @@ import { TodoEdit } from "./pages/TodoEdit.jsx"
 import { AboutTeam } from "./cmps/AboutTeam.jsx"
 import { AboutVision } from "./cmps/AboutVision.jsx"
 import { Dashboard } from "./pages/Dashboard.jsx"
-import { StoreProvider } from './services/store/store.js'
+import { UserDetails } from "./pages/UserDetails.jsx"
+import { StoreProvider, useStore } from './services/store/store.js'
+
+function FooterProgress() {
+    const { state } = useStore()
+    const todos = state.todos
+    const pct = (() => {
+        if (!todos || todos.length === 0) return 0
+        let done = 0
+        for (let i = 0; i < todos.length; i++) if (todos[i].isDone) done++
+        return Math.round((done / todos.length) * 100)
+    })()
+    return (
+        <footer className="app-footer" style={{ padding: '8px 16px' }}>
+            <div className="progress" style={{ height: '6px', background: '#eee' }}>
+                <div style={{ height: '100%', width: pct + '%', background: '#4caf50' }}></div>
+            </div>
+        </footer>
+    )
+}
 
 export function RootCmp() {
     return (
@@ -30,8 +49,10 @@ export function RootCmp() {
                             <Route path="/todo/edit" element={<TodoEdit />} />
                             <Route path="/todo" element={<TodoIndex />} />
                             <Route path="/dashboard" element={<Dashboard />} />
+                            <Route path="/user/:userId" element={<UserDetails />} />
                         </Routes>
                     </main>
+                    <FooterProgress />
                 </section>
             </StoreProvider>
         </Router>

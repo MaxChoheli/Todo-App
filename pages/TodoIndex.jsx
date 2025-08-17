@@ -13,19 +13,32 @@ export function TodoIndex() {
     const { todos, isLoading, filterBy } = state
 
     const [searchParams, setSearchParams] = useSearchParams()
-    const paramsFilter = todoService.getFilterFromSearchParams(searchParams)
 
-    useEffect(() => {
-        if (JSON.stringify(paramsFilter) !== JSON.stringify(filterBy)) setFilter(paramsFilter)
-    }, [])
+    function paramsToObj(sp) {
+        const o = {}
+        for (const [k, v] of sp.entries()) o[k] = v
+        return o
+    }
 
-    useEffect(() => {
-        const params = {}
-        for (const k in filterBy) {
-            const v = filterBy[k]
-            if (v !== '' && v !== 'all' && v !== 0) params[k] = v
+    function filterToParams(fb) {
+        const p = {}
+        for (const k in fb) {
+            const v = fb[k]
+            if (v === '' || v === 'all' || v === 0) continue
+            p[k] = String(v)
         }
-        setSearchParams(params, { replace: true })
+        return p
+    }
+
+    useEffect(() => {
+        const urlFilter = todoService.getFilterFromSearchParams(searchParams)
+        if (JSON.stringify(urlFilter) !== JSON.stringify(filterBy)) setFilter(urlFilter)
+    }, [searchParams])
+
+    useEffect(() => {
+        const desired = filterToParams(filterBy)
+        const current = paramsToObj(searchParams)
+        if (JSON.stringify(desired) !== JSON.stringify(current)) setSearchParams(desired, { replace: true })
         loadTodos()
     }, [filterBy])
 
@@ -53,7 +66,11 @@ export function TodoIndex() {
                 <Link to="/todo/edit" className="btn" >Add Todo</Link>
             </div>
             <h2>Todos List</h2>
-            <TodoList todos={todos} onRemoveTodo={onRemoveTodo} onToggleTodo={onToggleTodo} />
+            {todos.length === 0 ? (
+                <div>No todos to show..</div>
+            ) : (
+                <TodoList todos={todos} onRemoveTodo={onRemoveTodo} onToggleTodo={onToggleTodo} />
+            )}
             <hr />
             <h2>Todos Table</h2>
             <div style={{ width: '60%', margin: 'auto' }}>

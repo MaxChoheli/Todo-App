@@ -4,27 +4,26 @@ export const utilService = {
     getRandomIntInclusive,
     loadFromStorage,
     saveToStorage,
-    animateCSS
+    animateCSS,
+    timeAgo
 }
 
 function makeId(length = 6) {
     var txt = ''
     var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-
     for (var i = 0; i < length; i++) {
         txt += possible.charAt(Math.floor(Math.random() * possible.length))
     }
-
     return txt
 }
 
 function makeLorem(size = 100) {
-    const words = ['The sky', 'above', 'the port', 'was', 'the color' ,'of nature', 'tuned', 'to', 'a live channel', 'All', 'this happened', 'more or less', 'I', 'had', 'the story', 'bit by bit', 'from various people', 'and', 'as generally', 'happens', 'in such cases', 'each time', 'it', 'was', 'a different story', 'a pleasure', 'to', 'burn']
+    const words = ['The sky', 'above', 'the port', 'was', 'the color', 'of nature', 'tuned', 'to', 'a live channel', 'All', 'this happened', 'more or less', 'I', 'had', 'the story', 'bit by bit', 'from various people', 'and', 'as generally', 'happens', 'in such cases', 'each time', 'it', 'was', 'a different story', 'a pleasure', 'to', 'burn']
     var txt = ''
     while (size > 0) {
         size--
         txt += words[Math.floor(Math.random() * words.length)]
-        if (size >= 1 ) txt += ' '
+        if (size >= 1) txt += ' '
     }
     return txt
 }
@@ -32,7 +31,7 @@ function makeLorem(size = 100) {
 function getRandomIntInclusive(min, max) {
     min = Math.ceil(min)
     max = Math.floor(max)
-    return Math.floor(Math.random() * (max - min + 1)) + min //The maximum is inclusive and the minimum is inclusive 
+    return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
 function saveToStorage(key, value) {
@@ -44,7 +43,7 @@ function loadFromStorage(key) {
     return (data) ? JSON.parse(data) : undefined
 }
 
-function animateCSS(el, animation='bounce') {
+function animateCSS(el, animation = 'bounce') {
     const prefix = 'animate__'
     return new Promise((resolve, reject) => {
         const animationName = `${prefix}${animation}`
@@ -54,7 +53,21 @@ function animateCSS(el, animation='bounce') {
             el.classList.remove(`${prefix}animated`, animationName)
             resolve('Animation ended')
         }
-
         el.addEventListener('animationend', handleAnimationEnd, { once: true })
     })
+}
+
+function timeAgo(ts) {
+    const s = Math.floor((Date.now() - ts) / 1000)
+    if (s < 60) return s + ' seconds ago'
+    const m = Math.floor(s / 60)
+    if (m < 60) return m + (m === 1 ? ' minute ago' : ' minutes ago')
+    const h = Math.floor(m / 60)
+    if (h < 24) return h + (h === 1 ? ' hour ago' : ' hours ago')
+    const d = Math.floor(h / 24)
+    if (d < 30) return d + (d === 1 ? ' day ago' : ' days ago')
+    const mo = Math.floor(d / 30)
+    if (mo < 12) return mo + (mo === 1 ? ' month ago' : ' months ago')
+    const y = Math.floor(mo / 12)
+    return y + (y === 1 ? ' year ago' : ' years ago')
 }
