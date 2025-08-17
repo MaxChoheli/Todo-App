@@ -109,8 +109,18 @@ export function StoreProvider({ children }) {
         const toSave = { ...todo, isDone: !todo.isDone }
         const saved = await todoService.save(toSave)
         dispatch({ type: 'UPDATE_TODO', todo: saved })
+
+        if (!todo.isDone && saved.isDone && state.user && state.user._id) {
+            const full = await userService.getById(state.user._id)
+            const activities = Array.isArray(full.activities) ? full.activities.slice() : []
+            activities.push({ txt: "Completed a Todo: '" + saved.txt + "'", at: Date.now() })
+            const updated = { ...full, balance: (full.balance || 0) + 10, activities, updatedAt: Date.now() }
+            const logged = await userService.update(updated)
+            dispatch({ type: 'SET_USER', user: logged })
+        }
+
         return saved
-    }, [])
+    }, [state.user])
 
     const setUser = useCallback((user) => {
         dispatch({ type: 'SET_USER', user })
